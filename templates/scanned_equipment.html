@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Scan Result - SEMS</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="navbar">
+        <p class="brand">SEMS</p>
+        <div>
+            <a href="{{ url_for('student_dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('student_logout') }}">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card center">
+            {% if status == 'success' %}
+                <h1 style="color:#166534;">Success</h1>
+            {% else %}
+                <h1 style="color:#b91c1c;">Failed</h1>
+            {% endif %}
+
+            {% if equipment_name %}
+            <h2>{{ equipment_name }}</h2>
+            {% endif %}
+
+            <p>{{ message }}</p>
+
+            <div class="grid" style="margin-top: 20px;">
+                <a class="btn full" href="{{ url_for('student_borrow') if action == 'borrow' else url_for('student_return') }}">Scan Another</a>
+                <a class="btn secondary full" href="{{ url_for('student_dashboard') }}">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

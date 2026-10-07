@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Request Equipment - SEMS</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="navbar">
+        <p class="brand">SEMS</p>
+        <div>
+            <a href="{{ url_for('student_dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('student_logout') }}">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h1>🙋 Request New Equipment</h1>
+            <p>Don't see the equipment you need? Let the admin know what to add.</p>
+
+            {% if submitted %}
+            <p class="status-msg success">Thanks! Your request has been sent to the admin.</p>
+            {% endif %}
+
+            <form method="post" action="{{ url_for('student_request_equipment') }}">
+                <label>Equipment Name</label>
+                <input type="text" name="item_name" placeholder="e.g. Chess Board, Cricket Bat" required>
+
+                <label>Notes (optional)</label>
+                <input type="text" name="notes" placeholder="e.g. quantity needed, reason">
+
+                <button class="btn full" type="submit">Submit Request</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

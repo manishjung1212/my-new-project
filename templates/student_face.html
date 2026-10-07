@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Register Student - SEMS</title>
+
+    <link rel="icon"
+          href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <p class="brand">SEMS Admin</p>
+
+        <div>
+            <a href="{{ url_for('admin_students') }}">Back to Students</a>
+            <a href="{{ url_for('admin_logout') }}">Logout</a>
+        </div>
+    </div>
+
+
+    <!-- MAIN CONTAINER -->
+    <div class="container">
+
+        <div class="card">
+
+            <h1>Register New Student</h1>
+
+            <p>
+                Only the administrator can register a new student.
+                All fields are compulsory.
+            </p>
+
+
+            <!-- STUDENT INFORMATION -->
+            <div class="form-group">
+
+                <label for="name">
+                    Student Name
+                </label>
+
+                <input
+                    type="text"
+                    id="name"
+                    value="{{ name }}"
+                    placeholder="Enter student name"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="faculty">
+                    Faculty
+                </label>
+
+                <input
+                    type="text"
+                    id="faculty"
+                    value="{{ faculty }}"
+                    placeholder="Enter faculty"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="email">
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    value="{{ email }}"
+                    placeholder="student@example.com"
+                    required
+                >
+
+            </div>
+
+
+            <!-- FACE REGISTRATION -->
+            <h2>Face Registration</h2>
+
+            <p>
+                Make sure the student's real face is clearly visible
+                in the camera.
+            </p>
+
+
+            <div class="video-wrap">
+                <video
+                    id="video"
+                    autoplay
+                    muted
+                    playsinline>
+                </video>
+            </div>
+
+
+            <p
+                class="status-msg"
+                id="status">
+                Starting camera...
+            </p>
+
+
+            <button
+                class="btn full"
+                id="capture-btn"
+                disabled>
+
+                Capture Face &amp; Register
+
+            </button>
+
+
+            <br>
+            <br>
+
+
+            <a
+                class="btn secondary full"
+                href="{{ url_for('admin_students') }}">
+
+                Cancel
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        const video = document.getElementById("video");
+        const statusEl = document.getElementById("status");
+        const captureBtn = document.getElementById("capture-btn");
+
+        const nameInput = document.getElementById("name");
+        const facultyInput = document.getElementById("faculty");
+        const emailInput = document.getElementById("email");
+
+        let stream = null;
+
+
+        // ---------------------------------------------------------
+        // STATUS MESSAGE
+        // ---------------------------------------------------------
+
+        function setStatus(message, type) {
+
+            statusEl.textContent = message;
+
+            statusEl.className =
+                "status-msg" + (type ? " " + type : "");
+
+        }
+
+
+        // ---------------------------------------------------------
+        // START CAMERA
+        // ---------------------------------------------------------
+
+        async function startCamera() {
+
+            try {
+
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: "user",
+                        width: {
+                            ideal: 640
+                        },
+                        height: {
+                            ideal: 480
+                        }
+                    },
+                    audio: false
+                });
+
+                video.srcObject = stream;
+
+                await video.play();
+
+                setStatus(
+                    "Camera ready. Position the student's real face inside the frame."
+                );
+
+                captureBtn.disabled = false;
+
+            } catch (error) {
+
+                console.error(error);
+
+                setStatus(
+                    "Unable to access camera: " + error.message,
+                    "error"
+                );
+
+            }
+
+        }
+
+
+        // ---------------------------------------------------------
+        // CAPTURE IMAGE FROM CAMERA
+        // ---------------------------------------------------------
+
+        function captureImage() {
+
+            if (
+                !video.videoWidth ||
+                !video.videoHeight
+            ) {
+
+                return null;
+
+            }
+
+
+            const canvas =
+                document.createElement("canvas");
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+
+            const context =
+                canvas.getContext("2d");
+
+            context.drawImage(
+                video,
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+
+            return canvas.toDataURL(
+                "image/jpeg",
+                0.90
+            );
+
+        }
+
+
+        // ---------------------------------------------------------
+        // STOP CAMERA
+        // ---------------------------------------------------------
+
+        function stopCamera() {
+
+            if (!stream) {
+                return;
+            }
+
+            stream.getTracks().forEach(
+                track => track.stop()
+            );
+
+            video.srcObject = null;
+
+            stream = null;
+
+        }
+
+
+        // ---------------------------------------------------------
+        // START
+        // ---------------------------------------------------------
+
+        startCamera();
+
+
+        // ---------------------------------------------------------
+        // REGISTER STUDENT
+        // ---------------------------------------------------------
+
+        captureBtn.addEventListener(
+            "click",
+            async function () {
+
+                const name =
+                    nameInput.value.trim();
+
+                const faculty =
+                    facultyInput.value.trim();
+
+                const email =
+                    emailInput.value.trim().toLowerCase();
+
+
+                // ---------------------------------------------
+                // REQUIRED FIELD VALIDATION
+                // ---------------------------------------------
+
+                if (!name) {
+
+                    setStatus(
+                        "Student name is required.",
+                        "error"
+                    );
+
+                    nameInput.focus();
+
+                    return;
+
+                }
+
+
+                if (!faculty) {
+
+                    setStatus(
+                        "Faculty is required.",
+                        "error"
+                    );
+
+                    facultyInput.focus();
+
+                    return;
+
+                }
+
+
+                if (!email) {
+
+                    setStatus(
+                        "Email is required.",
+                        "error"
+                    );
+
+                    emailInput.focus();
+
+                    return;
+
+                }
+
+
+                // ---------------------------------------------
+                // EMAIL VALIDATION
+                // ---------------------------------------------
+
+                const emailPattern =
+                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+                if (!emailPattern.test(email)) {
+
+                    setStatus(
+                        "Please enter a valid email address.",
+                        "error"
+                    );
+
+                    emailInput.focus();
+
+                    return;
+
+                }
+
+
+                // ---------------------------------------------
+                // CAPTURE IMAGE
+                // ---------------------------------------------
+
+                captureBtn.disabled = true;
+
+                setStatus(
+                    "Capturing face. Please keep your face still..."
+                );
+
+
+                const image =
+                    captureImage();
+
+
+                if (!image) {
+
+                    setStatus(
+                        "Could not capture the camera image. Please try again.",
+                        "error"
+                    );
+
+                    captureBtn.disabled = false;
+
+                    return;
+
+                }
+
+
+                // ---------------------------------------------
+                // SEND TO FLASK
+                // ---------------------------------------------
+
+                setStatus(
+                    "Checking liveness and registering face..."
+                );
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "{{ url_for('api_student_register') }}",
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body: JSON.stringify({
+
+                                    name: name,
+
+                                    faculty: faculty,
+
+                                    email: email,
+
+                                    image: image
+
+                                })
+                            }
+                        );
+
+
+                    const data =
+                        await response.json();
+
+
+                    // -----------------------------------------
+                    // SUCCESS
+                    // -----------------------------------------
+
+                    if (data.ok) {
+
+                        setStatus(
+                            "Student registered successfully!",
+                            "success"
+                        );
+
+                        stopCamera();
+
+
+                        setTimeout(
+                            function () {
+
+                                window.location.href =
+                                    "{{ url_for('admin_students') }}";
+
+                            },
+                            1000
+                        );
+
+
+                        return;
+
+                    }
+
+
+                    // -----------------------------------------
+                    // ERROR FROM SERVER
+                    // -----------------------------------------
+
+                    setStatus(
+                        data.message ||
+                        "Student registration failed.",
+                        "error"
+                    );
+
+                    captureBtn.disabled = false;
+
+                } catch (error) {
+
+                    console.error(error);
+
+                    setStatus(
+                        "Server error. Please try again.",
+                        "error"
+                    );
+
+                    captureBtn.disabled = false;
+
+                }
+
+            }
+        );
+
+
+        // ---------------------------------------------------------
+        // STOP CAMERA WHEN PAGE IS LEFT
+        // ---------------------------------------------------------
+
+        window.addEventListener(
+            "beforeunload",
+            function () {
+
+                stopCamera();
+
+            }
+        );
+
+    </script>
+
+</body>
+</html>

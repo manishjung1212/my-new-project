@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ 'Borrow' if action == 'borrow' else 'Return' }} Equipment - SEMS</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body>
+    <div class="navbar">
+        <p class="brand">SEMS</p>
+        <div>
+            <a href="{{ url_for('student_dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('student_logout') }}">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h1>{{ 'Borrow Equipment' if action == 'borrow' else 'Return Equipment' }}</h1>
+            <p>
+                {% if action == 'borrow' %}
+                Scan the QR code on the equipment to borrow it — recorded instantly under your name.
+                {% else %}
+                Scan the QR code on the equipment to return it.
+                {% endif %}
+            </p>
+
+            <div id="qr-reader"></div>
+            <p class="status-msg" id="status"></p>
+        </div>
+    </div>
+
+    <script>
+        const action = "{{ action }}";
+        const statusEl = document.getElementById("status");
+        let processing = false;
+
+        function setStatus(msg, type) {
+            statusEl.textContent = msg;
+            statusEl.className = "status-msg" + (type ? " " + type : "");
+        }
+
+        const scanner = new Html5Qrcode("qr-reader");
+
+        async function onScanSuccess(decodedText) {
+            if (processing) return;
+            processing = true;
+            setStatus("Processing " + decodedText + "...");
+
+            try {
+                const res = await fetch("/api/scan", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ code: decodedText, action: action }),
+                });
+                const data = await res.json();
+                await scanner.stop();
+
+                const params = new URLSearchParams({
+                    equipment_name: data.equipment_name || "",
+                    action: action,
+                    status: data.ok ? "success" : "error",
+                    message: data.message || "",
+                });
+                window.location.href = "/student/scanned?" + params.toString();
+            } catch (err) {
+                setStatus("Error: " + err.message, "error");
+                processing = false;
+            }
+        }
+
+        scanner
+            .start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onScanSuccess)
+            .catch((err) => {
+                setStatus("Could not start camera: " + err, "error");
+            });
+    </script>
+</body>
+</html>

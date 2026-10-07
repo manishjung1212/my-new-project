@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Dashboard - SEMS</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="navbar">
+        <p class="brand">SEMS</p>
+        <div><a href="{{ url_for('student_logout') }}">Logout</a></div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h1>Welcome, {{ name }}</h1>
+            <p>Faculty: {{ faculty }}</p>
+        </div>
+
+        <div class="grid">
+            <div class="card center">
+                <h2>📋 View Equipment</h2>
+                <p>Browse all sport equipment and check availability.</p>
+                <a class="btn full" href="{{ url_for('student_equipment') }}">View Equipment</a>
+            </div>
+            <div class="card center">
+                <h2>📥 Borrow Equipment</h2>
+                <p>Scan an equipment QR code to borrow it — recorded instantly.</p>
+                <a class="btn full" href="{{ url_for('student_borrow') }}">Borrow Equipment</a>
+            </div>
+            <div class="card center">
+                <h2>📤 Return Equipment</h2>
+                <p>Scan an equipment QR code to return it.</p>
+                <a class="btn full" href="{{ url_for('student_return') }}">Return Equipment</a>
+            </div>
+            <div class="card center">
+                <h2>🎒 My Borrowed Items{% if unpaid_count %} ({{ unpaid_count }} to pay){% endif %}</h2>
+                <p>See borrowed and return times, your pay status, and pay any charges.</p>
+                <a class="btn full" href="{{ url_for('student_borrowed') }}">My Borrowed Items</a>
+            </div>
+            <div class="card center">
+                <h2>🙋 Request New Equipment</h2>
+                <p>Ask the admin to add equipment that isn't available.</p>
+                <a class="btn full secondary" href="{{ url_for('student_request_equipment') }}">Request Equipment</a>
+            </div>
+            <div class="card center">
+                <h2>💳 Pay Charges</h2>
+                <p>View and pay charges for lost, damaged, or overdue equipment.</p>
+                <a class="btn full secondary" href="{{ url_for('student_borrowed') }}">
+                    View Charges & Pay
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

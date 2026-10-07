@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Equipment - SEMS Admin</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include "_admin_nav.html" %}
+
+    <div class="container">
+        <div class="card">
+            <h1>Add New Equipment</h1>
+            <form method="post" action="{{ url_for('admin_equipment_add') }}">
+                <label>Equipment Name</label>
+                <input type="text" name="name" placeholder="e.g. Football, Badminton Racket" required>
+
+                <label>Category</label>
+                <input type="text" name="category" list="category-list" placeholder="e.g. Football, Badminton, Basketball" required>
+                <datalist id="category-list">
+                    <option value="Football">
+                    <option value="Badminton">
+                    <option value="Basketball">
+                    <option value="Volleyball">
+                    <option value="Table Tennis">
+                    <option value="Cricket">
+                    <option value="Hockey">
+                </datalist>
+
+                <button class="btn full" type="submit">Add Equipment</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>Student Login - SEMS</title>
+
+    <link rel="icon"
+          href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+
+<body class="auth-page">
+
+    <!-- Navbar -->
+    <div class="navbar">
+
+        <p class="brand">SEMS</p>
+
+        <div>
+            <a href="{{ url_for('index') }}">Home</a>
+        </div>
+
+    </div>
+
+
+    <div class="auth-wrap">
+
+        <!-- Left illustration -->
+        <div class="auth-panel">
+
+            <img
+                src="{{ url_for('static', filename='img/hero-illustration.svg') }}"
+                alt="Sport equipment illustration"
+            >
+
+        </div>
+
+
+        <!-- Login section -->
+        <div class="auth-form">
+
+            <div class="card">
+
+                <h1>Student Login</h1>
+
+
+                <!-- ========================= -->
+                <!-- STEP 1: STUDENT DETAILS -->
+                <!-- ========================= -->
+
+                <div id="form-step">
+
+                    <label>Name</label>
+
+                    <input
+                        type="text"
+                        id="name"
+                        placeholder="Enter your full name"
+                    >
+
+
+                    <label>Faculty</label>
+
+                    <input
+                        type="text"
+                        id="faculty"
+                        placeholder="Enter your faculty"
+                    >
+
+
+                    <button
+                        class="btn full"
+                        id="start-btn"
+                    >
+                        Verify Face &amp; Login
+                    </button>
+
+
+                    <p
+                        class="center"
+                        style="margin-top:14px; font-size:14px;"
+                    >
+                        Student registration is handled by the administrator.
+                        Please contact the admin if you are not registered.
+                    </p>
+
+                </div>
+
+
+                <!-- ========================= -->
+                <!-- STEP 2: FACE VERIFICATION -->
+                <!-- ========================= -->
+
+                <div
+                    id="face-step"
+                    style="display:none;"
+                >
+
+                    <div class="video-wrap">
+
+                        <video
+                            id="video"
+                            autoplay
+                            muted
+                            playsinline
+                        ></video>
+
+                    </div>
+
+
+                    <p
+                        class="status-msg"
+                        id="status"
+                    >
+                        Opening camera...
+                    </p>
+
+
+                    <button
+                        class="btn secondary full"
+                        id="cancel-btn"
+                    >
+                        Cancel
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Hidden canvas used to capture webcam frame -->
+    <canvas
+        id="canvas"
+        style="display:none;"
+    ></canvas>
+
+
+    <script>
+
+        const formStep =
+            document.getElementById("form-step");
+
+        const faceStep =
+            document.getElementById("face-step");
+
+        const video =
+            document.getElementById("video");
+
+        const canvas =
+            document.getElementById("canvas");
+
+        const statusEl =
+            document.getElementById("status");
+
+
+        let stream = null;
+
+
+        // ==========================================
+        // STATUS MESSAGE
+        // ==========================================
+
+        function setStatus(message, type = "") {
+
+            statusEl.textContent = message;
+
+            statusEl.className =
+                "status-msg" +
+                (type ? " " + type : "");
+        }
+
+
+        // ==========================================
+        // START WEBCAM
+        // ==========================================
+
+        async function startCamera() {
+
+            stream = await navigator.mediaDevices.getUserMedia({
+
+                video: {
+                    width: {
+                        ideal: 640
+                    },
+
+                    height: {
+                        ideal: 480
+                    },
+
+                    facingMode: "user"
+                },
+
+                audio: false
+            });
+
+
+            video.srcObject = stream;
+
+            await video.play();
+        }
+
+
+        // ==========================================
+        // STOP WEBCAM
+        // ==========================================
+
+        function stopCamera() {
+
+            if (!stream) {
+                return;
+            }
+
+
+            stream.getTracks().forEach(track => {
+
+                track.stop();
+
+            });
+
+
+            video.srcObject = null;
+
+            stream = null;
+        }
+
+
+        // ==========================================
+        // CAPTURE WEBCAM IMAGE
+        // ==========================================
+
+        function captureImage() {
+
+            if (
+                video.videoWidth === 0 ||
+                video.videoHeight === 0
+            ) {
+
+                return null;
+            }
+
+
+            canvas.width =
+                video.videoWidth;
+
+            canvas.height =
+                video.videoHeight;
+
+
+            const context =
+                canvas.getContext("2d");
+
+
+            context.drawImage(
+                video,
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+
+            return canvas.toDataURL(
+                "image/jpeg",
+                0.90
+            );
+        }
+
+
+        // ==========================================
+        // CANCEL LOGIN
+        // ==========================================
+
+        document
+            .getElementById("cancel-btn")
+            .addEventListener("click", () => {
+
+                stopCamera();
+
+                faceStep.style.display = "none";
+
+                formStep.style.display = "block";
+
+            });
+
+
+        // ==========================================
+        // LOGIN
+        // ==========================================
+
+        document
+            .getElementById("start-btn")
+            .addEventListener("click", async () => {
+
+
+                const name =
+                    document
+                        .getElementById("name")
+                        .value
+                        .trim();
+
+
+                const faculty =
+                    document
+                        .getElementById("faculty")
+                        .value
+                        .trim();
+
+
+                // -------------------------------
+                // Validate name and faculty
+                // -------------------------------
+
+                if (!name || !faculty) {
+
+                    alert(
+                        "Please enter your name and faculty."
+                    );
+
+                    return;
+                }
+
+
+                // -------------------------------
+                // Show camera section
+                // -------------------------------
+
+                formStep.style.display = "none";
+
+                faceStep.style.display = "block";
+
+
+                try {
+
+                    // -------------------------------
+                    // Start camera
+                    // -------------------------------
+
+                    setStatus(
+                        "Opening camera..."
+                    );
+
+
+                    await startCamera();
+
+
+                    // Give camera a moment
+                    await new Promise(resolve => {
+
+                        setTimeout(resolve, 1000);
+
+                    });
+
+
+                    // -------------------------------
+                    // Capture image
+                    // -------------------------------
+
+                    setStatus(
+                        "Look directly at the camera..."
+                    );
+
+
+                    await new Promise(resolve => {
+
+                        setTimeout(resolve, 1000);
+
+                    });
+
+
+                    const image =
+                        captureImage();
+
+
+                    if (!image) {
+
+                        throw new Error(
+                            "Could not capture camera image."
+                        );
+                    }
+
+
+                    // -------------------------------
+                    // Send image to Python
+                    // -------------------------------
+
+                    setStatus(
+                        "Checking if you are a real person..."
+                    );
+
+
+                    const response =
+                        await fetch(
+                            "/api/student/login",
+                            {
+
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body: JSON.stringify({
+
+                                    name: name,
+
+                                    faculty: faculty,
+
+                                    image: image
+
+                                })
+
+                            }
+                        );
+
+
+                    const data =
+                        await response.json();
+
+
+                    // -------------------------------
+                    // Stop camera
+                    // -------------------------------
+
+                    stopCamera();
+
+
+                    // -------------------------------
+                    // Login successful
+                    // -------------------------------
+
+                    if (data.ok) {
+
+                        setStatus(
+                            "Face verified! Login successful.",
+                            "success"
+                        );
+
+
+                        setTimeout(() => {
+
+                            window.location.href =
+                                "/student/dashboard";
+
+                        }, 700);
+
+
+                        return;
+                    }
+
+
+                    // -------------------------------
+                    // Login failed
+                    // -------------------------------
+
+                    setStatus(
+                        data.message ||
+                        "Face verification failed.",
+                        "error"
+                    );
+
+
+                    setTimeout(() => {
+
+                        faceStep.style.display =
+                            "none";
+
+                        formStep.style.display =
+                            "block";
+
+                    }, 2500);
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Student login error:",
+                        error
+                    );
+
+
+                    stopCamera();
+
+
+                    setStatus(
+                        "Camera or recognition error: " +
+                        error.message,
+                        "error"
+                    );
+
+
+                    setTimeout(() => {
+
+                        faceStep.style.display =
+                            "none";
+
+                        formStep.style.display =
+                            "block";
+
+                    }, 2500);
+
+                }
+
+            });
+
+    </script>
+
+</body>
+
+</html>

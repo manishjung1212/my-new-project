@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Equipment Requests - SEMS Admin</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include "_admin_nav.html" %}
+
+    <div class="container">
+        <div class="card">
+            <h1>🙋 Equipment Requests from Students</h1>
+            <p>Equipment students have asked for that isn't in the system yet, or that they'd like more of.</p>
+
+            <table>
+                <tr>
+                    <th>Student</th>
+                    <th>Faculty</th>
+                    <th>Requested Item</th>
+                    <th>Notes</th>
+                    <th>Requested At</th>
+                    <th></th>
+                </tr>
+                {% for w in wishlist %}
+                <tr>
+                    <td>{{ w.student_name }}</td>
+                    <td>{{ w.faculty }}</td>
+                    <td>{{ w.item_name }}</td>
+                    <td>{{ w.notes or '-' }}</td>
+                    <td>{{ w.requested_at }}</td>
+                    <td>
+                        <form method="post" action="{{ url_for('admin_wishlist_delete', wishlist_id=w.id) }}" onsubmit="return confirm('Remove this request?');">
+                            <button class="btn danger" type="submit">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6">No equipment requests from students yet.</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Equipment - SEMS Admin</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    {% include "_admin_nav.html" %}
+
+    <div class="container">
+        {% include "_flash.html" %}
+        <div class="card">
+            <h1>Equipment</h1>
+            <a class="btn" href="{{ url_for('admin_equipment_add') }}">+ Add New Equipment</a>
+        </div>
+
+        <div class="grid">
+            {% for e in equipment %}
+            <div class="card equipment-card">
+                <h3>{{ sport_icon(e.category) }} {{ e.name }}</h3>
+                <p>{{ e.category }}</p>
+                <span class="badge {{ e.status }}">{{ e.status }}</span>
+                <div class="qrcode-box" id="qr-{{ e.id }}" data-code="{{ e.code }}"></div>
+                <p><small>Code: {{ e.code }}</small></p>
+                <button class="btn secondary" onclick="downloadQR({{ e.id }}, '{{ e.code }}')">Download QR</button>
+                {% if e.status == 'broken' %}
+                <form method="post" action="{{ url_for('admin_equipment_status', equipment_id=e.id) }}">
+                    <input type="hidden" name="status" value="available">
+                    <button class="btn warn full" type="submit" style="margin-top:8px;">Mark Repaired</button>
+                </form>
+                {% elif e.status == 'available' %}
+                <form method="post" action="{{ url_for('admin_equipment_status', equipment_id=e.id) }}" onsubmit="return confirm('Mark this equipment as broken? Students will not be able to borrow it.');">
+                    <input type="hidden" name="status" value="broken">
+                    <button class="btn warn full" type="submit" style="margin-top:8px;">Mark Broken</button>
+                </form>
+                {% endif %}
+                <form method="post" action="{{ url_for('admin_equipment_delete', equipment_id=e.id) }}" onsubmit="return confirm('Delete this equipment?');">
+                    <button class="btn danger full" type="submit" style="margin-top:8px;">Delete</button>
+                </form>
+            </div>
+            {% else %}
+            <p>No equipment added yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll(".qrcode-box").forEach((box) => {
+            new QRCode(box, {
+                text: box.dataset.code,
+                width: 140,
+                height: 140,
+            });
+        });
+
+        function downloadQR(id, code) {
+            const box = document.getElementById("qr-" + id);
+            const canvas = box.querySelector("canvas");
+            const img = box.querySelector("img");
+            const link = document.createElement("a");
+            link.download = code + ".png";
+            link.href = canvas ? canvas.toDataURL("image/png") : img.src;
+            link.click();
+        }
+    </script>
+</body>
+</html>

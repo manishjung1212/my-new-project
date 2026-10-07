@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reports - SEMS Admin</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include "_admin_nav.html" %}
+
+    <div class="container">
+        <div class="card">
+            <h1>Reports</h1>
+            <div class="grid">
+                <div class="card center"><h2>{{ summary.total_requests }}</h2><p>Total Borrows</p></div>
+                <div class="card center"><h2>{{ summary.approved }}</h2><p>Currently Borrowed</p></div>
+                <div class="card center"><h2>{{ summary.returned }}</h2><p>Returned</p></div>
+                <div class="card center"><h2>{{ summary.broken }}</h2><p>Broken Equipment</p></div>
+                <div class="card center"><h2>{{ summary.wishlist_count }}</h2><p>Equipment Requests</p></div>
+                <div class="card center"><h2>{{ currency }} {{ '%.2f'|format(summary.collected) }}</h2><p>Payments Collected</p></div>
+                <div class="card center"><h2>{{ currency }} {{ '%.2f'|format(summary.outstanding) }}</h2><p>Payments Outstanding</p></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>All Transactions</h2>
+            <div style="overflow-x:auto;">
+            <table>
+                <tr>
+                    <th>Student</th>
+                    <th>Faculty</th>
+                    <th>Equipment</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Borrowed At</th>
+                    <th>Returned At</th>
+                </tr>
+                {% for r in rows %}
+                <tr>
+                    <td>{{ r.student_name }}</td>
+                    <td>{{ r.faculty }}</td>
+                    <td>{{ r.equipment_name }}</td>
+                    <td>{{ sport_icon(r.category) }} {{ r.category }}</td>
+                    <td><span class="badge {{ r.status }}">{{ 'borrowed' if r.status == 'approved' else r.status }}</span></td>
+                    <td>{{ r.requested_at }}</td>
+                    <td>{{ r.returned_at or '-' }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7">No borrow records yet.</td></tr>
+                {% endfor %}
+            </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

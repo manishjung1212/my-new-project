@@ -1,0 +1,13 @@
+{% set ep = request.endpoint %}
+<div class="navbar">
+    <p class="brand">SEMS Admin</p>
+    <div>
+        <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if ep == 'admin_dashboard' }}">Dashboard</a>
+        <a href="{{ url_for('admin_equipment') }}" class="{{ 'active' if ep in ('admin_equipment', 'admin_equipment_add') }}">Equipment</a>
+        <a href="{{ url_for('admin_students') }}" class="{{ 'active' if ep in ('admin_students', 'admin_students_register') }}">Students</a>
+        <a href="{{ url_for('admin_requests') }}" class="{{ 'active' if ep == 'admin_requests' }}">Requests</a>
+        <a href="{{ url_for('admin_payments') }}" class="{{ 'active' if ep == 'admin_payments' }}">Payments{% if nav_pending_payments %}<span class="nav-count">{{ nav_pending_payments }}</span>{% endif %}</a>
+        <a href="{{ url_for('admin_reports') }}" class="{{ 'active' if ep == 'admin_reports' }}">Reports</a>
+        <a href="{{ url_for('admin_logout') }}">Logout</a>
+    </div>
+</div>

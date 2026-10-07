@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Borrowed Equipment - SEMS</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <div class="navbar">
+        <p class="brand">SEMS</p>
+
+        <div>
+            <a href="{{ url_for('student_dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('student_logout') }}">Logout</a>
+        </div>
+    </div>
+
+
+    <div class="container">
+
+        {% include "_flash.html" %}
+
+        <div class="card">
+
+            <h1>My Borrowed Items</h1>
+
+            <div style="overflow-x:auto;">
+
+                <table>
+
+                    <tr>
+                        <th>Equipment</th>
+                        <th>Borrowed At</th>
+                        <th>Returned At</th>
+                        <th>Status</th>
+                        <th>Pay Status</th>
+                    </tr>
+
+
+                    {% for r in records %}
+
+                    <tr>
+
+                        <td>
+                            {{ sport_icon(r.category) }}
+                            {{ r.equipment_name }}
+
+                            <br>
+
+                            <small class="muted">
+                                {{ r.category }} &middot; {{ r.code }}
+                            </small>
+                        </td>
+
+
+                        <td>
+                            {{ r.borrowed_at }}
+                        </td>
+
+
+                        <td>
+                            {{ r.returned_at or 'Not returned yet' }}
+                        </td>
+
+
+                        <td>
+                            <span class="badge {{ r.record_status }}">
+                                {{ 'borrowed' if r.record_status == 'approved' else r.record_status }}
+                            </span>
+                        </td>
+
+
+                        <td>
+
+                            {% if r.payment_id %}
+
+                                <strong>
+                                    {{ currency }}
+                                    {{ '%.2f'|format(r.amount) }}
+                                </strong>
+
+                                <span class="badge {{ r.payment_status }}">
+                                    {{
+                                        'awaiting confirmation'
+                                        if r.payment_status == 'submitted'
+                                        else r.payment_status
+                                    }}
+                                </span>
+
+
+                                {% if r.payment_note %}
+                                    <br>
+                                    <small class="muted">
+                                        {{ r.payment_note }}
+                                    </small>
+                                {% endif %}
+
+
+                                {% if r.payment_status == 'due' %}
+
+                                    <br>
+
+                                    <button
+                                        type="button"
+                                        class="btn small pay-btn"
+                                        style="margin-top:6px;"
+                                        data-id="{{ r.payment_id }}"
+                                        data-amount="{{ currency }} {{ '%.2f'|format(r.amount) }}"
+                                        data-item="{{ r.equipment_name }}"
+                                        data-note="{{ r.payment_note or '' }}"
+                                    >
+                                        Pay
+                                    </button>
+
+
+                                {% elif r.payment_status == 'submitted' %}
+
+                                    <br>
+
+                                    <small class="muted">
+                                        Payment submitted. Waiting for admin confirmation.
+                                    </small>
+
+
+                                {% elif r.payment_status == 'paid' and r.paid_at %}
+
+                                    <br>
+
+                                    <small class="muted">
+                                        Paid {{ r.paid_at }}
+                                    </small>
+
+                                {% endif %}
+
+
+                            {% else %}
+
+                                <span class="muted">
+                                    No charge
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="5">
+                            You have not borrowed any equipment yet.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </table>
+
+            </div>
+
+
+            <br>
+
+
+            <a
+                class="btn full"
+                href="{{ url_for('student_return') }}"
+            >
+                Return Equipment
+            </a>
+
+
+            <p
+                class="muted"
+                style="margin-top:12px; font-size:13px;"
+            >
+                If equipment breaks, return it by scanning its QR code as usual.
+                The admin will mark it as broken and, if needed, add a charge
+                that you can pay here.
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ========================================================= -->
+    <!-- PAY POPUP -->
+    <!-- ========================================================= -->
+
+    <div class="modal" id="pay-modal">
+
+        <div class="modal-box">
+
+            <h2>Pay</h2>
+
+
+            <p
+                id="pay-item"
+                class="muted"
+            ></p>
+
+
+            <p
+                class="pay-amount"
+                id="pay-amount"
+            ></p>
+
+
+            <p
+                id="pay-note"
+                class="muted"
+            ></p>
+
+
+
+            {% if qr_file %}
+
+                <p>
+                    Scan this QR code with your payment app,
+                    pay the amount, then upload your transaction
+                    screenshot below.
+                </p>
+
+
+                <img
+                    class="qr-preview"
+                    src="{{ url_for('static', filename='uploads/' + qr_file) }}"
+                    alt="Payment QR code"
+                >
+
+
+            {% else %}
+
+                <p class="status-msg error">
+                    The admin has not uploaded a payment QR yet.
+                    Please ask the admin.
+                </p>
+
+            {% endif %}
+
+
+
+            <!-- ================================================= -->
+            <!-- PAYMENT FORM -->
+            <!-- ================================================= -->
+
+            <form
+                id="pay-form"
+                method="post"
+                action=""
+                enctype="multipart/form-data"
+            >
+
+                <!-- Transaction ID -->
+                <input
+                    type="text"
+                    name="reference"
+                    maxlength="100"
+                    placeholder="Transaction ID (optional)"
+                >
+
+
+                <!-- Payment Screenshot -->
+                <label
+                    for="payment_screenshot"
+                    style="
+                        display:block;
+                        margin-top:12px;
+                        margin-bottom:6px;
+                        font-weight:600;
+                    "
+                >
+                    Payment Screenshot <span style="color:red;">*</span>
+                </label>
+
+
+                <input
+                    type="file"
+                    id="payment_screenshot"
+                    name="payment_screenshot"
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    required
+                >
+
+
+                <small
+                    class="muted"
+                    style="display:block; margin-top:6px;"
+                >
+                    Upload the screenshot of your successful payment transaction.
+                    PNG, JPG, WEBP or GIF only. Maximum 4 MB.
+                </small>
+
+
+                <br>
+
+
+                <button
+                    class="btn full"
+                    type="submit"
+                >
+                    I have paid
+                </button>
+
+            </form>
+
+
+
+            <button
+                type="button"
+                class="btn full"
+                id="pay-close"
+                style="margin-top:8px;"
+            >
+                Close
+            </button>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ========================================================= -->
+    <!-- JAVASCRIPT -->
+    <!-- ========================================================= -->
+
+    <script>
+
+        const modal = document.getElementById("pay-modal");
+
+        const payUrlTemplate =
+            "{{ url_for('student_pay_submit', payment_id=0) }}";
+
+
+        /*
+         * Open payment popup
+         */
+        document.querySelectorAll(".pay-btn").forEach((btn) => {
+
+            btn.addEventListener("click", () => {
+
+                document.getElementById("pay-item").textContent =
+                    btn.dataset.item;
+
+
+                document.getElementById("pay-amount").textContent =
+                    btn.dataset.amount;
+
+
+                document.getElementById("pay-note").textContent =
+                    btn.dataset.note;
+
+
+                document.getElementById("pay-form").action =
+                    payUrlTemplate.replace(
+                        /\/0\//,
+                        "/" + btn.dataset.id + "/"
+                    );
+
+
+                /*
+                 * Reset screenshot input
+                 * every time the popup opens.
+                 */
+                document.getElementById(
+                    "payment_screenshot"
+                ).value = "";
+
+
+                /*
+                 * Reset transaction reference.
+                 */
+                document.querySelector(
+                    '#pay-form input[name="reference"]'
+                ).value = "";
+
+
+                modal.classList.add("open");
+
+            });
+
+        });
+
+
+
+        /*
+         * Close popup
+         */
+        function closeModal() {
+
+            modal.classList.remove("open");
+
+        }
+
+
+        document
+            .getElementById("pay-close")
+            .addEventListener(
+                "click",
+                closeModal
+            );
+
+
+
+        /*
+         * Close when clicking outside popup
+         */
+        modal.addEventListener("click", (e) => {
+
+            if (e.target === modal) {
+
+                closeModal();
+
+            }
+
+        });
+
+
+
+        /*
+         * Close with ESC key
+         */
+        document.addEventListener("keydown", (e) => {
+
+            if (e.key === "Escape") {
+
+                closeModal();
+
+            }
+
+        });
+
+    </script>
+
+</body>
+</html>

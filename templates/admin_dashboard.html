@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - SEMS</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include "_admin_nav.html" %}
+
+    <div class="container">
+        {% include "_flash.html" %}
+        <h1>Admin Dashboard</h1>
+
+        <div class="grid">
+            <div class="card center">
+                <h2>{{ total_equipment }}</h2>
+                <p>Total Equipment</p>
+            </div>
+            <div class="card center">
+                <h2>{{ available }}</h2>
+                <p>Available</p>
+            </div>
+            <div class="card center">
+                <h2>{{ borrowed }}</h2>
+                <p>Borrowed</p>
+            </div>
+            <div class="card center">
+                <h2>{{ broken_count }}</h2>
+                <p>Broken</p>
+            </div>
+            <div class="card center">
+                <h2>{{ total_students }}</h2>
+                <p>Registered Students</p>
+            </div>
+            <div class="card center">
+                <h2>{{ wishlist_count }}</h2>
+                <p>Equipment Requests</p>
+            </div>
+        </div>
+
+        <div class="grid" style="margin-top: 24px;">
+            <div class="card center">
+                <h2>🏸 Equipment</h2>
+                <p>Add equipment, download QR codes and mark items broken or repaired.</p>
+                <a class="btn full" href="{{ url_for('admin_equipment') }}">Manage Equipment</a>
+            </div>
+            <div class="card center">
+                <h2>🎓 Students</h2>
+                <p>Only you can register new students (name, faculty, email and face).</p>
+                <a class="btn full" href="{{ url_for('admin_students') }}">Manage Students</a>
+            </div>
+            <div class="card center">
+                <h2>💳 Payments{% if pending_payments %} ({{ pending_payments }}){% endif %}</h2>
+                <p>Upload your payment QR, add charges and confirm student payments.</p>
+                <a class="btn full" href="{{ url_for('admin_payments') }}">Manage Payments</a>
+            </div>
+            <div class="card center">
+                <h2>🙋 Requests{% if wishlist_count %} ({{ wishlist_count }}){% endif %}</h2>
+                <p>See what equipment students have asked for.</p>
+                <a class="btn full" href="{{ url_for('admin_requests') }}">Equipment Requests</a>
+            </div>
+            <div class="card center">
+                <h2>📊 Reports</h2>
+                <p>View borrow / return history and summary stats.</p>
+                <a class="btn full" href="{{ url_for('admin_reports') }}">Generate Report</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

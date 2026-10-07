@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="520" viewBox="0 0 600 520" fill="none">
+  <!-- soft decorative blobs -->
+  <circle cx="150" cy="180" r="220" fill="#0f7a4b" opacity="0.06"/>
+  <circle cx="430" cy="340" r="180" fill="#f7941d" opacity="0.07"/>
+
+  <!-- dashed scan-target ring around football (face-recognition motif) -->
+  <circle cx="170" cy="190" r="118" stroke="#0f7a4b" stroke-width="2" stroke-dasharray="6 8" opacity="0.35"/>
+
+  <!-- football (soccer ball) -->
+  <g>
+    <circle cx="170" cy="190" r="88" fill="#ffffff" stroke="#1f2937" stroke-width="4"/>
+    <polygon points="170,140 195,158 185,187 155,187 145,158" fill="#1f2937"/>
+    <polygon points="170,140 145,158 118,145 128,112 170,105" fill="#ffffff" stroke="#1f2937" stroke-width="3"/>
+    <polygon points="170,140 195,158 222,145 212,112 170,105" fill="#ffffff" stroke="#1f2937" stroke-width="3"/>
+    <polygon points="155,187 185,187 195,220 170,242 145,220" fill="#ffffff" stroke="#1f2937" stroke-width="3"/>
+    <line x1="118" y1="145" x2="78" y2="165" stroke="#1f2937" stroke-width="3"/>
+    <line x1="222" y1="145" x2="262" y2="165" stroke="#1f2937" stroke-width="3"/>
+    <line x1="145" y1="220" x2="120" y2="258" stroke="#1f2937" stroke-width="3"/>
+    <line x1="195" y1="220" x2="220" y2="258" stroke="#1f2937" stroke-width="3"/>
+  </g>
+
+  <!-- basketball -->
+  <g>
+    <circle cx="440" cy="320" r="72" fill="#f7941d" stroke="#1f2937" stroke-width="4"/>
+    <path d="M368 320 H512" stroke="#1f2937" stroke-width="3"/>
+    <path d="M440 248 V392" stroke="#1f2937" stroke-width="3"/>
+    <path d="M384 268 Q440 320 384 372" stroke="#1f2937" stroke-width="3" fill="none"/>
+    <path d="M496 268 Q440 320 496 372" stroke="#1f2937" stroke-width="3" fill="none"/>
+  </g>
+
+  <!-- badminton shuttlecock -->
+  <g transform="translate(455,90) rotate(15)">
+    <ellipse cx="0" cy="46" rx="16" ry="10" fill="#e5e7eb" stroke="#1f2937" stroke-width="3"/>
+    <path d="M-14,40 L-30,-18 L0,-4 Z" fill="#ffffff" stroke="#1f2937" stroke-width="3"/>
+    <path d="M0,40 L0,-8 L20,-2 Z" fill="#ffffff" stroke="#1f2937" stroke-width="3" opacity="0.9"/>
+    <path d="M14,40 L30,-14 L2,-4 Z" fill="#ffffff" stroke="#1f2937" stroke-width="3" opacity="0.8"/>
+  </g>
+
+  <!-- QR code motif (project theme) -->
+  <g transform="translate(60,360)">
+    <rect x="0" y="0" width="90" height="90" rx="8" fill="#ffffff" stroke="#1f2937" stroke-width="3"/>
+    <rect x="10" y="10" width="24" height="24" fill="#0f7a4b"/>
+    <rect x="56" y="10" width="24" height="24" fill="#0f7a4b"/>
+    <rect x="10" y="56" width="24" height="24" fill="#0f7a4b"/>
+    <rect x="46" y="46" width="10" height="10" fill="#1f2937"/>
+    <rect x="62" y="46" width="10" height="10" fill="#1f2937"/>
+    <rect x="46" y="62" width="10" height="10" fill="#1f2937"/>
+    <rect x="62" y="66" width="14" height="14" fill="#f7941d"/>
+  </g>
+</svg>

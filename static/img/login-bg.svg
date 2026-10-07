@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b5c39"/>
+      <stop offset="55%" stop-color="#0f7a4b"/>
+      <stop offset="100%" stop-color="#0d6b42"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bgGrad)"/>
+
+  <!-- large translucent decorative circles (balls, softly blended) -->
+  <circle cx="180" cy="150" r="220" fill="#ffffff" opacity="0.04"/>
+  <circle cx="1420" cy="200" r="260" fill="#f7941d" opacity="0.06"/>
+  <circle cx="1300" cy="760" r="300" fill="#ffffff" opacity="0.04"/>
+  <circle cx="120" cy="780" r="180" fill="#f7941d" opacity="0.05"/>
+  <circle cx="800" cy="450" r="420" fill="#ffffff" opacity="0.025"/>
+
+  <!-- faint football seam pattern, oversized, top-right -->
+  <g opacity="0.07" stroke="#ffffff" stroke-width="3" fill="none">
+    <circle cx="1300" cy="180" r="140"/>
+    <polygon points="1300,110 1340,138 1326,182 1274,182 1260,138"/>
+    <line x1="1260" y1="138" x2="1200" y2="120"/>
+    <line x1="1340" y1="138" x2="1400" y2="120"/>
+    <line x1="1274" y1="182" x2="1250" y2="240"/>
+    <line x1="1326" y1="182" x2="1350" y2="240"/>
+  </g>
+
+  <!-- faint basketball seam pattern, oversized, bottom-left -->
+  <g opacity="0.06" stroke="#ffffff" stroke-width="3" fill="none">
+    <circle cx="220" cy="700" r="150"/>
+    <line x1="70" y1="700" x2="370" y2="700"/>
+    <line x1="220" y1="550" x2="220" y2="850"/>
+    <path d="M120,620 Q220,700 120,780"/>
+    <path d="M320,620 Q220,700 320,780"/>
+  </g>
+
+  <!-- scattered small dots for texture -->
+  <g fill="#ffffff" opacity="0.15">
+    <circle cx="500" cy="120" r="3"/>
+    <circle cx="600" cy="700" r="3"/>
+    <circle cx="950" cy="150" r="2.5"/>
+    <circle cx="1050" cy="650" r="3"/>
+    <circle cx="400" cy="500" r="2.5"/>
+    <circle cx="1150" cy="450" r="3"/>
+    <circle cx="700" cy="820" r="2.5"/>
+    <circle cx="250" cy="350" r="2.5"/>
+  </g>
+</svg>

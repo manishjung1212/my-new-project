@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Broken Reports - SEMS Admin</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include "_admin_nav.html" %}
+
+    <div class="container">
+        {% include "_flash.html" %}
+
+        <div class="card">
+            <h1>🛠️ Broken Equipment Reports</h1>
+            <p>Students report equipment that breaks while they are using it. The item is taken out of circulation
+               automatically. You can set a charge (the student then pays using your payment QR) and mark the
+               item repaired when it is fixed.</p>
+        </div>
+
+        {% for r in reports %}
+        <div class="card report-card {{ 'resolved' if r.status == 'resolved' }}">
+            <h3>{{ sport_icon(r.category) }} {{ r.equipment_name }}
+                <span class="badge {{ r.status }}">{{ r.status }}</span>
+            </h3>
+            <p class="report-meta">
+                Code: {{ r.code }} &middot; Reported by <strong>{{ r.student_name }}</strong> ({{ r.faculty }})
+                &middot; {{ r.reported_at }}
+                {% if r.resolved_at %}&middot; Closed {{ r.resolved_at }}{% endif %}
+                &middot; Equipment now: <span class="badge {{ r.equipment_status }}">{{ r.equipment_status }}</span>
+            </p>
+
+            <div class="report-desc">{{ r.description }}</div>
+
+            <form class="charge-form" method="post" action="{{ url_for('admin_broken_charge', report_id=r.id) }}">
+                <div>
+                    <label>Charge ({{ currency }})</label>
+                    <input type="number" name="amount" min="0" step="0.01" placeholder="0 = no charge"
+                           value="{{ '%.2f'|format(r.amount) if r.amount else '' }}"
+                           {{ 'disabled' if r.payment_status == 'paid' }}>
+                </div>
+                <div style="flex:2;">
+                    <label>Note for student (optional)</label>
+                    <input type="text" name="admin_note" maxlength="500" placeholder="e.g. replacement cost"
+                           value="{{ r.admin_note or '' }}">
+                </div>
+                <div style="flex:0;">
+                    <button class="btn small" type="submit">Save</button>
+                </div>
+            </form>
+
+            {% if r.payment_id %}
+            <p style="margin-top:12px;">
+                Payment: <span class="badge {{ r.payment_status }}">{{ r.payment_status }}</span>
+                <span class="muted">&mdash; {{ currency }} {{ '%.2f'|format(r.amount) }}.
+                Manage it on the <a href="{{ url_for('admin_payments') }}">Payments</a> page.</span>
+            </p>
+            {% endif %}
+
+            {% if r.status == 'open' %}
+            <div class="actions" style="margin-top:14px;">
+                <form method="post" action="{{ url_for('admin_broken_resolve', report_id=r.id) }}">
+                    <input type="hidden" name="outcome" value="repaired">
+                    <button class="btn warn small" type="submit">Mark Repaired &amp; Close</button>
+                </form>
+                <form method="post" action="{{ url_for('admin_broken_resolve', report_id=r.id) }}"
+                      onsubmit="return confirm('Close this report and keep the equipment marked as broken?');">
+                    <input type="hidden" name="outcome" value="keep">
+                    <button class="btn secondary small" type="submit">Close (keep broken)</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="card center">
+            <p>No broken reports yet. 🎉</p>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
